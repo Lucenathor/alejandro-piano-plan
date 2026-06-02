@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Implementación — Alejandro Piano | FOCUS Consulting Group</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b1120;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --accent: #b8a04c;
+            --accent-light: #d4c06a;
+            --accent-glow: rgba(184, 160, 76, 0.3);
+            --blue: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(255,255,255,0.08);
+            --glass: rgba(255,255,255,0.03);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; overflow-x: hidden; }
+
+        /* Aurora BG */
+        .bg-aurora { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .bg-aurora::before { content: ''; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(184,160,76,0.06) 0%, transparent 50%), radial-gradient(ellipse at 40% 80%, rgba(16,185,129,0.05) 0%, transparent 50%); animation: auroraMove 20s ease-in-out infinite; }
+        @keyframes auroraMove { 0%,100%{transform:translate(0,0) rotate(0deg)} 25%{transform:translate(2%,-2%) rotate(1deg)} 50%{transform:translate(-1%,3%) rotate(-1deg)} 75%{transform:translate(3%,1%) rotate(.5deg)} }
+
+        /* Particles */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .particle { position: absolute; width: 3px; height: 3px; background: var(--accent); border-radius: 50%; opacity: 0; animation: floatP 8s ease-in-out infinite; }
+        @keyframes floatP { 0%{opacity:0;transform:translateY(100vh) scale(0)} 20%{opacity:.6} 80%{opacity:.3} 100%{opacity:0;transform:translateY(-100px) scale(1)} }
+
+        /* Progress bar */
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); z-index: 9999; transition: width .15s; width: 0%; }
+
+        /* Nav */
+        .nav { position: fixed; top: 0; left: 0; right: 0; background: rgba(11,17,32,.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 999; padding: 14px 0; }
+        .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: .85rem; color: var(--accent); letter-spacing: .05em; }
+        .nav-client { font-size: .75rem; color: var(--text-secondary); }
+
+        /* Container */
+        .container { max-width: 900px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+        /* Hero */
+        .hero { padding: 120px 0 60px; text-align: center; }
+        .hero-badge { display: inline-block; background: rgba(184,160,76,.1); border: 1px solid rgba(184,160,76,.3); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: .7rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 24px; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+        .hero h1 span { color: var(--accent); }
+        .hero p { color: var(--text-secondary); font-size: 1rem; max-width: 600px; margin: 0 auto 16px; }
+        .hero-meta { color: var(--text-muted); font-size: .8rem; }
+
+        /* Section */
+        .section { margin-bottom: 64px; }
+        .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: .7rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 12px; font-family: 'Space Grotesk', sans-serif; }
+        .section-label::before { content: ''; width: 20px; height: 2px; background: var(--accent); }
+        .section h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 16px; }
+        .section h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); }
+
+        /* Cards */
+        .card { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; transition: all .3s cubic-bezier(.23,1,.32,1); }
+        .card:hover { border-color: rgba(184,160,76,.2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+        .card-gold { border-color: rgba(184,160,76,.3); box-shadow: 0 0 30px rgba(184,160,76,.08); }
+
+        /* KPI Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .kpi { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+        .kpi-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+        .kpi-label { font-size: .75rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* Flow */
+        .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 24px 0; }
+        .flow-step { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; font-size: .8rem; font-weight: 500; }
+        .flow-arrow { color: var(--accent); font-size: 1.2rem; }
+
+        /* Checklist */
+        .checklist { list-style: none; }
+        .checklist li { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; font-size: .9rem; color: var(--text-secondary); }
+        .checklist li:last-child { border-bottom: none; }
+        .check-icon { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; cursor: pointer; transition: all .2s; }
+        .check-icon.checked { background: var(--accent); border-color: var(--accent); }
+        .check-icon.checked::after { content: '✓'; color: var(--bg-primary); font-size: .7rem; font-weight: 700; }
+
+        /* Quote */
+        .quote { background: rgba(184,160,76,.05); border-left: 3px solid var(--accent); padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 20px 0; }
+        .quote p { font-style: italic; color: var(--text-secondary); font-size: .9rem; }
+        .quote cite { display: block; margin-top: 8px; font-size: .75rem; color: var(--accent); font-style: normal; }
+
+        /* Divider */
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .3; margin: 48px 0; }
+
+        /* CTA */
+        .cta-section { text-align: center; padding: 48px 0; }
+        .cta-btn { display: inline-block; background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: var(--bg-primary); padding: 16px 40px; border-radius: 12px; font-weight: 700; font-size: .95rem; text-decoration: none; transition: all .3s; box-shadow: 0 4px 20px var(--accent-glow); }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--accent-glow); }
+
+        /* Footer */
+        .footer { text-align: center; padding: 40px 0; border-top: 1px solid var(--border); }
+        .footer p { font-size: .75rem; color: var(--text-muted); }
+
+        /* Scroll Reveal */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all .7s cubic-bezier(.23,1,.32,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.8rem; }
+            .card { padding: 20px; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .flow { flex-direction: column; align-items: stretch; }
+            .flow-arrow { transform: rotate(90deg); text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-aurora"></div>
+    <div class="particles" id="particles"></div>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-brand">FOCUS CONSULTING GROUP</div>
+            <div class="nav-client">Alejandro Piano</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- HERO -->
+        <section class="hero reveal">
+            <div class="hero-badge">Sesion Estrategica</div>
+            <h1>Plan de Crecimiento<br><span>Piano Abogados</span></h1>
+            <p>Estrategia completa para posicionar tu despacho como la autoridad en transacciones inmobiliarias para no residentes en la Costa Blanca.</p>
+            <div class="hero-meta">23 de abril de 2026 · 96 minutos · Adrián Lucena</div>
+        </section>
+
+        <!-- CONTEXTO -->
+        <section class="section reveal">
+            <div class="section-label">Contexto actual</div>
+            <h2>Piano Abogados</h2>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">Un bufete con 40 años de historia en Dénia, Alicante. Conocido localmente por el boca a boca, con una base sólida pero sin presencia digital estratégica.</p>
+            <div class="kpi-grid">
+                <div class="kpi"><div class="kpi-value">40 años</div><div class="kpi-label">Historia del despacho</div></div>
+                <div class="kpi"><div class="kpi-value">3</div><div class="kpi-label">Abogados en el equipo</div></div>
+                <div class="kpi"><div class="kpi-value">>25.000 €</div><div class="kpi-label">Facturación últimos 4 meses</div></div>
+                <div class="kpi"><div class="kpi-value">~100%</div><div class="kpi-label">Conversión boca a boca</div></div>
+            </div>
+            <div class="card">
+                <h3>Equipo actual</h3>
+                <p style="color:var(--text-secondary);font-size:.9rem;">Alejandro (abogado principal), su tío (socio fundador), un colega abogado, una secretaria a tiempo parcial y un contable. El despacho tiene estructura suficiente para escalar si se optimiza la captación.</p>
+            </div>
+            <div class="card">
+                <h3>Problema principal</h3>
+                <p style="color:var(--text-secondary);font-size:.9rem;">Los leads que llegan por la web buscan precio y no valoran el servicio. El enfoque generalista diluye la autoridad de marca. No hay embudo de ventas ni CRM configurado. Los anuncios en Meta acaban de lanzarse sin estrategia de cualificación.</p>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- GIRO ESTRATEGICO -->
+        <section class="section reveal">
+            <div class="section-label">Decision clave</div>
+            <h2>De Generalista a Especialista</h2>
+            <div class="quote">
+                <p>"Enfócate al 100% en una sola línea de servicio de alto margen. Construye pericia profunda y dominio de mercado antes de expandirte. Es la misma estrategia que recomienda José Elías de Audax."</p>
+                <cite>— Adrián Lucena</cite>
+            </div>
+            <div class="card card-gold">
+                <h3>Nicho recomendado: Transacciones inmobiliarias para no residentes</h3>
+                <p style="color:var(--text-secondary);font-size:.9rem;margin-top:12px;">Este servicio es extremadamente valioso en la zona de Dénia por varios motivos: problemas frecuentes de propiedad (construcciones no declaradas, deudas ocultas), base de clientes extranjeros de alto valor que necesitan protección legal, y poca competencia digital en este nicho específico.</p>
+                <div style="margin-top:16px;padding:16px;background:rgba(184,160,76,.05);border-radius:10px;">
+                    <p style="font-size:.85rem;color:var(--text-primary);font-weight:600;">¿Por qué funciona?</p>
+                    <ul style="margin-top:8px;padding-left:20px;color:var(--text-secondary);font-size:.85rem;">
+                        <li>Servicio de alto valor (ticket medio elevado)</li>
+                        <li>Clientes extranjeros dispuestos a pagar por seguridad</li>
+                        <li>Problemas reales y frecuentes en la zona</li>
+                        <li>Poca competencia digital en este nicho</li>
+                        <li>Posibilidad de escalar con marketing sin contratar más abogados de inmediato</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- EMBUDO -->
+        <section class="section reveal">
+            <div class="section-label">Sistema de ventas</div>
+            <h2>Embudo de Alta Cualificación</h2>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">El objetivo es filtrar leads de baja intención antes de que lleguen a ti. Solo debes hablar con personas que realmente están comprando una propiedad y necesitan protección legal.</p>
+            <div class="flow">
+                <div class="flow-step">📢 Anuncio Meta</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">🎬 VSL (Video)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">📋 Cuestionario</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">📅 Reserva</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">📹 Videollamada</div>
+            </div>
+            <div class="card" style="margin-top:24px;">
+                <h3>Cómo funciona cada paso</h3>
+                <ul style="padding-left:20px;color:var(--text-secondary);font-size:.9rem;line-height:2;">
+                    <li><strong style="color:var(--text-primary)">Anuncio:</strong> Gancho basado en miedo — "¿Vas a comprar una propiedad en España? Esto es lo que nadie te cuenta."</li>
+                    <li><strong style="color:var(--text-primary)">VSL:</strong> Vídeo de 2-3 minutos explicando los riesgos reales y cómo Piano Abogados protege al comprador.</li>
+                    <li><strong style="color:var(--text-primary)">Cuestionario:</strong> Preguntas de cualificación (presupuesto, timeline, tipo de propiedad) que filtran curiosos.</li>
+                    <li><strong style="color:var(--text-primary)">Reserva:</strong> Solo los cualificados pueden agendar. La secretaria gestiona el calendario.</li>
+                    <li><strong style="color:var(--text-primary)">Videollamada:</strong> Alejandro cierra en videollamada (genera más confianza que email o teléfono).</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Preguntas de cualificación recomendadas</h3>
+                <ul style="padding-left:20px;color:var(--text-secondary);font-size:.9rem;line-height:2;">
+                    <li>¿Ya tienes una propiedad identificada o estás buscando?</li>
+                    <li>¿Cuál es tu presupuesto aproximado de compra?</li>
+                    <li>¿Cuándo planeas completar la compra?</li>
+                    <li>¿Es tu primera compra de propiedad en España?</li>
+                    <li>¿Necesitas asesoramiento fiscal además del legal?</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- MARKETING -->
+        <section class="section reveal">
+            <div class="section-label">Inversión inteligente</div>
+            <h2>Marketing antes que Personal</h2>
+            <div class="quote">
+                <p>"Reinvierte beneficios en gasto publicitario para escalar la generación de leads. Solo contrata personal después de validar el modelo de negocio y lograr rentabilidad consistente con un ROAS de 4-5x."</p>
+                <cite>— Adrián Lucena</cite>
+            </div>
+            <div class="card">
+                <h3>Orden de prioridades de inversión</h3>
+                <div style="margin-top:16px;">
+                    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+                        <span style="background:var(--accent);color:var(--bg-primary);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;">1</span>
+                        <span style="color:var(--text-secondary);font-size:.9rem;"><strong style="color:var(--text-primary)">Anuncios en Meta</strong> — Validar el embudo con presupuesto controlado</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+                        <span style="background:var(--bg-secondary);color:var(--text-muted);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;border:1px solid var(--border);">2</span>
+                        <span style="color:var(--text-secondary);font-size:.9rem;"><strong style="color:var(--text-primary)">Editor de vídeo</strong> — Contratar editor a tiempo parcial para reels diarios</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+                        <span style="background:var(--bg-secondary);color:var(--text-muted);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;border:1px solid var(--border);">3</span>
+                        <span style="color:var(--text-secondary);font-size:.9rem;"><strong style="color:var(--text-primary)">Escalar presupuesto</strong> — Cuando ROAS sea 4-5x, aumentar inversión publicitaria</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;">
+                        <span style="background:var(--bg-secondary);color:var(--text-muted);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;border:1px solid var(--border);">4</span>
+                        <span style="color:var(--text-secondary);font-size:.9rem;"><strong style="color:var(--text-primary)">Contratar abogado</strong> — Solo cuando el volumen justifique delegar casos</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- CONTENIDO -->
+        <section class="section reveal">
+            <div class="section-label">Estrategia de contenido</div>
+            <h2>Reels Diarios con Ganchos de Miedo</h2>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">El contenido orgánico es tu arma más poderosa para construir autoridad. El mensaje central es claro: enmarca tu servicio como "protección del comprador" esencial para evitar errores costosos.</p>
+            <div class="card">
+                <h3>Reglas de ejecución</h3>
+                <ul style="padding-left:20px;color:var(--text-secondary);font-size:.9rem;line-height:2.2;">
+                    <li><strong style="color:var(--text-primary)">Volumen:</strong> 1 Reel diario mínimo</li>
+                    <li><strong style="color:var(--text-primary)">Esfuerzo:</strong> 80% en el gancho, 20% en el contenido</li>
+                    <li><strong style="color:var(--text-primary)">CTA único:</strong> "Comenta CHECK para una revisión gratuita de tu propiedad"</li>
+                    <li><strong style="color:var(--text-primary)">Zona:</strong> Definir área objetivo (Costa Blanca)</li>
+                    <li><strong style="color:var(--text-primary)">Pruebas:</strong> Probar continuamente diferentes ganchos</li>
+                    <li><strong style="color:var(--text-primary)">Editor:</strong> Contratar editor a tiempo parcial para mantener consistencia</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Ejemplos de ganchos basados en miedo</h3>
+                <div style="margin-top:12px;display:grid;gap:12px;">
+                    <div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:14px;">
+                        <p style="font-size:.85rem;color:var(--text-primary);">"Esta casa en Dénia tenía 50.000 € en deudas ocultas. El comprador no lo supo hasta después de firmar."</p>
+                    </div>
+                    <div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:14px;">
+                        <p style="font-size:.85rem;color:var(--text-primary);">"¿Vas a comprar una propiedad en España? Estos 3 errores le cuestan miles de euros a los extranjeros cada año."</p>
+                    </div>
+                    <div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:14px;">
+                        <p style="font-size:.85rem;color:var(--text-primary);">"Construcción ilegal, deuda con Hacienda, y un vendedor que desapareció. Todo en una sola compraventa en Jávea."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- PROCESO VENTAS -->
+        <section class="section reveal">
+            <div class="section-label">Cierre de ventas</div>
+            <h2>Videollamadas, no Emails</h2>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">La recomendación es clara: pasar de emails y llamadas telefónicas a videollamadas. Generan más confianza, permiten leer al cliente y aumentan significativamente las tasas de conversión.</p>
+            <div class="card">
+                <h3>Ventajas de la videollamada</h3>
+                <ul style="padding-left:20px;color:var(--text-secondary);font-size:.9rem;line-height:2.2;">
+                    <li>El cliente ve tu cara y tu despacho — genera confianza inmediata</li>
+                    <li>Puedes compartir pantalla para mostrar documentos o registros</li>
+                    <li>Grabas la llamada con Fathom para enviar un resumen al cliente</li>
+                    <li>Mayor tasa de cierre que email o teléfono</li>
+                    <li>Ideal para clientes extranjeros que no pueden venir en persona</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- PLAN DE ACCION -->
+        <section class="section reveal">
+            <div class="section-label">Implementacion</div>
+            <h2>Tu Plan de Acción</h2>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">Sigue estos pasos en orden. Cada uno construye sobre el anterior.</p>
+            <div class="card">
+                <ul class="checklist">
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Configurar el CRM</strong><br>Reserva la consulta de configuración del CRM con un consultor de Focus. Configura el CRM con agente IA para gestionar leads entrantes.</div></li>
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Configurar el sistema de ventas</strong><br>Reserva consulta con Sergio para definir el proceso de ventas por videollamada y la cualificación de leads.</div></li>
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Redactar preguntas de cualificación</strong><br>Define las preguntas de presupuesto, timeline y servicio que filtrarán a los leads antes de que lleguen a tu agenda.</div></li>
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Grabar la VSL</strong><br>Graba un vídeo de 2-3 minutos sobre protección del comprador en transacciones inmobiliarias. Explica los riesgos y cómo Piano Abogados los resuelve.</div></li>
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Contratar editor de vídeo</strong><br>Contrata un editor a tiempo parcial para producir reels diarios de forma consistente.</div></li>
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Definir zona objetivo</strong><br>Establece tu área de actuación (Costa Blanca) y empieza a publicar reels diarios con el CTA "Comenta CHECK".</div></li>
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Lanzar anuncios en Meta</strong><br>Configura los anuncios apuntando al embudo completo (VSL → cuestionario → reserva). Empieza con presupuesto bajo para validar.</div></li>
+                    <li><div class="check-icon" onclick="this.classList.toggle('checked')"></div><div><strong style="color:var(--text-primary)">Validar y escalar</strong><br>Cuando el ROAS sea de 4-5x de forma consistente, escala el presupuesto publicitario. Solo entonces considera contratar más personal.</div></li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- CTA -->
+        <section class="cta-section reveal">
+            <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:12px;">¿Listo para empezar?</h2>
+            <p style="color:var(--text-secondary);margin-bottom:28px;font-size:.9rem;">Agenda tu próxima sesión para implementar el embudo de ventas completo.</p>
+            <a href="https://focusconsultor.com" target="_blank" class="cta-btn">Agendar Sesión en Focus Consultor</a>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>FOCUS Consulting Group · Documento generado el 23 de abril de 2026</p>
+            <p style="margin-top:8px;"><a href="https://fathom.video/share/7qMLoK6f8qSxXrDz2bvzsk35-PkHuNi4" target="_blank" style="color:var(--accent);text-decoration:none;">Ver grabación de la sesión</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // Particles
+        const pc = document.getElementById('particles');
+        for(let i=0;i<20;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*6)+'s';pc.appendChild(p);}
+
+        // Progress bar
+        window.addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-window.innerHeight;document.getElementById('progressBar').style.width=(window.scrollY/h*100)+'%';},{passive:true});
+
+        // Scroll reveal
+        const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible');});},{threshold:.1,rootMargin:'0px 0px -50px 0px'});
+        document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    </script>
+</body>
+</html>
